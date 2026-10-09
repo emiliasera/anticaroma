@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A tavola nell'antica Roma: Patrizi e Plebei</title>
+  <style>
+    :root {
+      --bg-page: #F9F9F6;
+      --text-main: #1F2937;
+      --text-muted: #4B5563;
+      --patrizia-color: #C04900;       /* Palette Okabe-Ito ad alto contrasto */
+      --patrizia-bg: #FFF3E6;
+      --patrizia-border: #993800;
+      --plebeo-color: #00609C;         /* Palette Okabe-Ito ad alto contrasto */
+      --plebeo-bg: #E8F4FC;
+      --plebeo-border: #004775;
+      --card-bg: #FFFFFF;
+      --border-subtle: #D1D5DB;
+      --focus-ring: #000000;
+      --success-green: #046A38;
+      --success-bg: #EAF7EE;
+      --retry-amber: #8A4F00;
+      --retry-bg: #FFF7EB;
+      --info-bg: #F0F4F8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 21px;
+      line-height: 1.6;
+      letter-spacing: 0.02em;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px;
+    }
+
+    /* Limite di riga corta (60-68 caratteri) per accessibilità DSA */
+    p, li, .readable-text {
+      max-width: 68ch;
+      text-align: left;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* Focus tastiera ben visibile per accessibilità motoria e visiva */
+    *:focus-visible {
+      outline: 4px solid var(--focus-ring);
+      outline-offset: 4px;
+    }
+
+    /* Pulsanti touch-friendly: minimo 58px per 58px */
+    .btn {
+      min-height: 58px;
+      min-width: 58px;
+      font-size: 21px;
+      font-family: inherit;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 14px 26px;
+      border-radius: 16px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-decoration: none;
+      touch-action: manipulation;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-primary {
+      background-color: #2D3748;
+      color: #FFFFFF;
+      border-color: #1A202C;
+    }
+    .btn-primary:hover {
+      background-color: #1A202C;
+    }
+
+    .btn-patrizio {
+      background-color: var(--patrizia-bg);
+      color: var(--patrizia-color);
+      border-color: var(--patrizia-border);
+    }
+    .btn-patrizio:hover {
+      background-color: #FFE6CC;
+    }
+
+    .btn-plebeo {
+      background-color: var(--plebeo-bg);
+      color: var(--plebeo-color);
+      border-color: var(--plebeo-border);
+    }
+    .btn-plebeo:hover {
+      background-color: #D6EBF8;
+    }
+
+    .btn-secondary {
+      background-color: #E5E7EB;
+      color: #1F2937;
+      border-color: #CBD5E1;
+    }
+    .btn-secondary:hover {
+      background-color: #D1D5DB;
+    }
+
+    /* Intestazione per LIM e tablet */
+    header {
+      background-color: #FFFFFF;
+      border: 2px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 16px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .badge-status {
+      font-size: 19px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background-color: #F3F4F6;
+      border: 2px solid #CBD5E1;
+    }
+
+    .screen {
+      display: none;
+      background-color: #FFFFFF;
+      border: 2px solid var(--border-subtle);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* Schermata 1: Copertina */
+    .cover-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 22px;
+    }
+
+    .cover-content h1 {
+      font-size: 34px;
+      line-height: 1.28;
+      color: #111827;
+      font-weight: 800;
+    }
+
+    .cover-content .subtitle {
+      font-size: 22px;
+      color: var(--text-muted);
+      max-width: 62ch;
+    }
+
+    .cover-svg-wrapper {
+      width: 100%;
+      max-width: 600px;
+      margin: 8px 0;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid #E5E7EB;
+      background-color: #FFFFFF;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px;
+    }
+
+    .cover-svg-wrapper svg {
+      width: 100%;
+      height: auto;
+      max-height: 280px;
+      display: block;
+    }
+
+    .instruction-box {
+      background-color: var(--info-bg);
+      border-left: 7px solid #00609C;
+      border-radius: 14px;
+      padding: 18px 22px;
+      width: 100%;
+      text-align: left;
+    }
+
+    /* Barra di avanzamento */
+    .progress-bar-container {
+      background-color: #E5E7EB;
+      border-radius: 12px;
+      height: 18px;
+      width: 100%;
+      overflow: hidden;
+      margin: 6px 0 22px 0;
+      border: 1px solid #D1D5DB;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #00609C;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Scheda alimento con cornice grafica centrata e proporzionata */
+    .card-workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .food-card-hero {
+      background-color: var(--card-bg);
+      border: 3px solid #E5E7EB;
+      border-radius: 20px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 18px;
+    }
+
+    .svg-food-frame {
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #FAFBF9;
+      border: 3px solid #E2E8F0;
+      border-radius: 24px;
+      padding: 12px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+      overflow: hidden;
+    }
+
+    .svg-food-frame svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    .food-card-title {
+      font-size: 27px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.35;
+    }
+
+    .button-group-choice {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      width: 100%;
+      max-width: 640px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 680px) {
+      .button-group-choice {
+        grid-template-columns: 1fr;
+      }
+      body {
+        font-size: 20px;
+        padding: 12px;
+      }
+      .food-card-title {
+        font-size: 24px;
+      }
+      .svg-food-frame {
+        width: 190px;
+        height: 190px;
+      }
+    }
+
+    /* Box di feedback formativo */
+    .feedback-box {
+      width: 100%;
+      border-radius: 18px;
+      padding: 22px;
+      display: none;
+      margin-top: 12px;
+      border: 3px solid;
+    }
+
+    .feedback-box.visible {
+      display: block;
+    }
+
+    .feedback-box.success {
+      background-color: var(--success-bg);
+      border-color: var(--success-green);
+      color: #064E27;
+    }
+
+    .feedback-box.retry {
+      background-color: var(--retry-bg);
+      border-color: var(--retry-amber);
+      color: #5C3500;
+    }
+
+    .feedback-header {
+      font-size: 23px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    /* Griglia di riepilogo finale */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 780px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .summary-column {
+      border-radius: 18px;
+      padding: 22px;
+      border: 3px solid;
+    }
+
+    .summary-column.patrizia {
+      background-color: var(--patrizia-bg);
+      border-color: var(--patrizia-border);
+    }
+
+    .summary-column.plebea {
+      background-color: var(--plebeo-bg);
+      border-color: var(--plebeo-border);
+    }
+
+    .summary-column h3 {
+      font-size: 24px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .summary-item {
+      background: #FFFFFF;
+      border: 2px solid #CBD5E1;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .summary-item-icon {
+      width: 70px;
+      height: 70px;
+      flex-shrink: 0;
+      background: #FAFBF9;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .summary-item-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .summary-item-text {
+      font-size: 19px;
+      line-height: 1.48;
+    }
+
+    .nav-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: space-between;
+      margin-top: 26px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header role="banner">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span aria-hidden="true" style="font-size: 32px;">🏛️</span>
+        <div>
+          <span style="font-size: 17px; font-weight: 700; color: #4B5563; display: block;">STORIA • CLASSE QUINTA</span>
+          <span style="font-weight: 800; font-size: 22px;">L'alimentazione nell'antica Roma</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <div id="counter-badge" class="badge-status" aria-label="Avanzamento dell'attività">
+          Elemento <span id="current-index-display">1</span> di 12
+        </div>
+        <button id="btn-global-restart" class="btn btn-secondary" type="button" aria-label="Ricomincia l'attività dall'inizio">
+          ↺ Ricomincia
+        </button>
+      </div>
+    </header>
+
+    <div id="aria-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- SCHERMATA 1: COPERTINA -->
+    <main id="screen-cover" class="screen active" aria-labelledby="title-copertina">
+      <div class="cover-content">
+        <h1 id="title-copertina">A tavola nell'antica Roma: Patrizi e Plebei</h1>
+        <p class="subtitle">
+          Scopri e confronta le abitudini alimentari di ricchi e lavoratori dell'antica Roma.
+        </p>
+
+        <!-- Illustrazione SVG tematica di copertina (viewBox 0 0 460 210) -->
+        <div class="cover-svg-wrapper">
+          <svg viewBox="0 0 460 210" role="img" aria-labelledby="cover-title cover-desc">
+            <title id="cover-title">Confronto tra la mensa dei patrizi e la tavola dei plebei nell'antica Roma</title>
+            <desc id="cover-desc">A sinistra il banchetto dei patrizi con calice d'oro, anfora di vino speziato e piatto d'argento con cibo raffinato; a destra la tavola rustica plebea con ciotola di farinata di cereali, cucchiaio di legno, pane scuro inciso a spicchi e brocca di terracotta.</desc>
+            <defs>
+              <linearGradient id="cover-patrizia-bg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFF8F2"/>
+                <stop offset="100%" stop-color="#FFE7D1"/>
+              </linearGradient>
+              <linearGradient id="cover-plebea-bg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#F3F9FD"/>
+                <stop offset="100%" stop-color="#DCEDF8"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Sfondo sinistro: Patrizi -->
+            <rect x="10" y="10" width="215" height="190" rx="14" fill="url(#cover-patrizia-bg)" stroke="#C04900" stroke-width="2.5"/>
+            <!-- Cartiglio Patrizi -->
+            <rect x="25" y="22" width="185" height="30" rx="8" fill="#C04900"/>
+            <text x="117" y="42" font-size="14" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">PATRIZI (RICCHI)</text>
+
+            <!-- Tavolo patrizio con drappeggio rosso pompeiano -->
+            <path d="M 25 155 L 210 155 L 210 185 Q 165 175 117 185 Q 70 175 25 185 Z" fill="#881337"/>
+            <rect x="25" y="152" width="185" height="6" fill="#D97706"/>
+
+            <!-- Anfora patrizia slanciata -->
+            <path d="M 48 105 Q 40 125 45 142 Q 52 152 60 152 Q 68 152 75 142 Q 80 125 72 105 Z" fill="#D97706" stroke="#78350F" stroke-width="2"/>
+            <rect x="56" y="94" width="8" height="12" fill="#B45309" stroke="#78350F" stroke-width="1.5"/>
+            <ellipse cx="60" cy="94" rx="6" ry="2.5" fill="#DC2626"/>
+            <path d="M 48 108 Q 38 116 45 128" stroke="#78350F" stroke-width="2.5" fill="none"/>
+            <path d="M 72 108 Q 82 116 75 128" stroke="#78350F" stroke-width="2.5" fill="none"/>
+
+            <!-- Calice d'oro a due manici -->
+            <path d="M 100 102 Q 117 136 134 102 Z" fill="#FACC15" stroke="#854D0E" stroke-width="2"/>
+            <ellipse cx="117" cy="102" rx="17" ry="5" fill="#EAB308" stroke="#854D0E" stroke-width="1.5"/>
+            <ellipse cx="117" cy="103" rx="13" ry="3" fill="#991B1B"/>
+            <rect x="115" y="123" width="4" height="22" fill="#CA8A04"/>
+            <ellipse cx="117" cy="146" rx="12" ry="4" fill="#EAB308" stroke="#854D0E" stroke-width="1.5"/>
+            <path d="M 101 106 Q 93 115 101 123" stroke="#854D0E" stroke-width="2" fill="none"/>
+            <path d="M 133 106 Q 141 115 133 123" stroke="#854D0E" stroke-width="2" fill="none"/>
+
+            <!-- Piatto d'argento con cibo ricercato e alloro -->
+            <ellipse cx="175" cy="142" rx="26" ry="9" fill="#E2E8F0" stroke="#64748B" stroke-width="2"/>
+            <ellipse cx="175" cy="138" rx="17" ry="6" fill="#92400E"/>
+            <circle cx="168" cy="137" r="3" fill="#DC2626"/>
+            <circle cx="182" cy="137" r="3" fill="#F59E0B"/>
+            <path d="M 157 141 Q 163 133 160 128" stroke="#16A34A" stroke-width="2" fill="none"/>
+            <path d="M 193 141 Q 187 133 190 128" stroke="#16A34A" stroke-width="2" fill="none"/>
+
+            <!-- Sfondo destro: Plebei -->
+            <rect x="235" y="10" width="215" height="190" rx="14" fill="url(#cover-plebea-bg)" stroke="#00609C" stroke-width="2.5"/>
+            <!-- Cartiglio Plebei -->
+            <rect x="250" y="22" width="185" height="30" rx="8" fill="#00609C"/>
+            <text x="342" y="42" font-size="14" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">PLEBEI (POPOLO)</text>
+
+            <!-- Mensa rustica in legno grezzo -->
+            <rect x="250" y="152" width="185" height="10" rx="2" fill="#57534E" stroke="#292524" stroke-width="2"/>
+            <rect x="265" y="162" width="14" height="26" fill="#44403C"/>
+            <rect x="405" y="162" width="14" height="26" fill="#44403C"/>
+
+            <!-- Brocca di terracotta (posca) -->
+            <path d="M 272 110 Q 260 132 268 147 Q 284 150 286 132 Q 285 118 280 110 Z" fill="#EA580C" stroke="#7C2D12" stroke-width="2"/>
+            <ellipse cx="276" cy="109" rx="6" ry="2.5" fill="#F97316"/>
+            <path d="M 264 116 Q 254 126 263 138" stroke="#7C2D12" stroke-width="2.5" fill="none"/>
+
+            <!-- Ciotola di terracotta con puls fumante -->
+            <path d="M 312 120 Q 336 156 360 120 Z" fill="#C2410C" stroke="#7C2D12" stroke-width="2.5"/>
+            <ellipse cx="336" cy="120" rx="24" ry="7" fill="#D97706" stroke="#7C2D12" stroke-width="1.5"/>
+            <ellipse cx="336" cy="120" rx="18" ry="4" fill="#FBBF24"/>
+            <!-- Vapore -->
+            <path d="M 330 112 Q 334 102 330 94" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 342 112 Q 346 102 342 94" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Cucchiaio di legno -->
+            <path d="M 322 118 L 305 102" stroke="#78350F" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="323" cy="119" rx="5" ry="3.5" fill="#78350F"/>
+
+            <!-- Pane rustico inciso (panis plebeius) -->
+            <ellipse cx="395" cy="140" rx="20" ry="12" fill="#78350F" stroke="#381E08" stroke-width="2"/>
+            <line x1="395" y1="128" x2="395" y2="152" stroke="#381E08" stroke-width="2"/>
+            <line x1="375" y1="140" x2="415" y2="140" stroke="#381E08" stroke-width="2"/>
+            <circle cx="395" cy="140" r="2.5" fill="#381E08"/>
+          </svg>
+        </div>
+
+        <button id="btn-start" class="btn btn-primary" type="button" style="padding: 16px 36px; font-size: 23px;">
+          Inizia l'esplorazione ➜
+        </button>
+      </div>
+    </main>
+
+    <!-- SCHERMATA 2: ATTIVITÀ DI CLASSIFICAZIONE -->
+    <main id="screen-activity" class="screen" aria-labelledby="activity-heading">
+      <h2 id="activity-heading" class="sr-only">Attività di abbinamento e classificazione</h2>
+
+      <div class="progress-bar-container" role="progressbar" id="progress-bar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="12" aria-label="Avanzamento della classificazione">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+      </div>
+
+      <div class="card-workspace">
+        <div class="food-card-hero">
+          <div id="food-svg-container" class="svg-food-frame">
+            <!-- Disegno vettoriale SVG inserito dinamicamente -->
+          </div>
+          <h3 id="food-name" class="food-card-title">Nome dell'alimento</h3>
+          <p id="food-prompt" class="readable-text" style="color: var(--text-muted);">
+            A quale gruppo sociale apparteneva questo cibo o questa abitudine?
+          </p>
+
+          <!-- Pulsanti di scelta ad alto contrasto -->
+          <div class="button-group-choice" role="group" aria-label="Scegli a chi associare questo alimento">
+            <button id="btn-choose-patrizio" class="btn btn-patrizio" type="button">
+              <span aria-hidden="true">🏛️</span> Assegna ai <strong>Patrizi</strong>
+            </button>
+            <button id="btn-choose-plebeo" class="btn btn-plebeo" type="button">
+              <span aria-hidden="true">🌾</span> Assegna ai <strong>Plebei</strong>
+            </button>
+          </div>
+        </div>
+
+        <!-- Box di Feedback Formativo con motivazione storica -->
+        <div id="feedback-panel" class="feedback-box" role="region" aria-live="assertive">
+          <div id="feedback-title" class="feedback-header">
+            <!-- Icona e titolo formativo -->
+          </div>
+          <p id="feedback-explanation" class="readable-text">
+            <!-- Spiegazione storica dettagliata -->
+          </p>
+          <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+            <button id="btn-next-item" class="btn btn-primary" type="button" style="display: none;">
+              Passa al prossimo alimento ➜
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- SCHERMATA 3: SINTESI E CONFRONTO STORICO -->
+    <main id="screen-summary" class="screen" aria-labelledby="summary-heading">
+      <div style="text-align: center; margin-bottom: 22px;">
+        <span aria-hidden="true" style="font-size: 44px;">📜</span>
+        <h2 id="summary-heading" style="font-size: 30px; margin-top: 8px;">Ottimo lavoro! Ecco il quadro storico</h2>
+        <p class="readable-text" style="margin: 8px auto; color: var(--text-muted);">
+          Hai completato con successo l'analisi di tutti i 12 elementi. Ora confronta le due colonne per comprendere <strong>perché</strong> la dieta romana era così profondamente divisa.
+        </p>
+      </div>
+
+      <div class="summary-grid">
+        <!-- Colonna Patrizi -->
+        <section class="summary-column patrizia" aria-labelledby="titolo-col-patrizi">
+          <h3 id="titolo-col-patrizi" style="color: var(--patrizia-color);">
+            <span aria-hidden="true">🏛️</span> La dieta dei Patrizi (Ricchi)
+          </h3>
+          <p class="readable-text" style="font-size: 18px; margin-bottom: 14px;">
+            <strong>Caratteristiche:</strong> Cibi costosi, ingredienti rari ed esotici, spezie d'Oriente. Mangiavano sdraiati nel triclinio per mostrare il loro prestigio sociale.
+          </p>
+          <div id="summary-patrizi-list" role="list">
+            <!-- Elementi inseriti dinamicamente via JS -->
+          </div>
+        </section>
+
+        <!-- Colonna Plebei -->
+        <section class="summary-column plebea" aria-labelledby="titolo-col-plebei">
+          <h3 id="titolo-col-plebei" style="color: var(--plebeo-color);">
+            <span aria-hidden="true">🌾</span> La dieta dei Plebei (Popolo)
+          </h3>
+          <p class="readable-text" style="font-size: 18px; margin-bottom: 14px;">
+            <strong>Caratteristiche:</strong> Cibi economici, nutrienti e conservabili. Nelle insulae non c'erano cucine sicure, quindi compravano spesso cibo già cotto per strada.
+          </p>
+          <div id="summary-plebei-list" role="list">
+            <!-- Elementi inseriti dinamicamente via JS -->
+          </div>
+        </section>
+      </div>
+
+      <div class="instruction-box" style="margin-top: 26px; border-left-color: #2D3748;">
+        <h4 style="font-size: 21px; margin-bottom: 8px;">Spunto di riflessione e discussione di gruppo:</h4>
+        <p class="readable-text">
+          Confrontatevi a coppie o in piccoli gruppi: <em>Quali erano i due motivi principali per cui i plebei non mangiavano come i patrizi?</em><br>
+          1. <strong>La disponibilità economica:</strong> i cibi raffinati, la carne rara e le spezie costavano cifre enormi che solo i ricchi proprietari terrieri potevano permettersi.<br>
+          2. <strong>Le abitazioni:</strong> i plebei vivevano in affollati condomini di legno (insulae) dove accendere il fuoco era vietato per il continuo pericolo di incendi!
+        </p>
+      </div>
+
+      <div class="nav-actions">
+        <button id="btn-review-again" class="btn btn-secondary" type="button">
+          Esamina di nuovo i cibi
+        </button>
+        <button id="btn-restart-final" class="btn btn-primary" type="button">
+          Ricomincia l'attività ↺
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    /**
+     * Dati storici verificati per la scuola primaria (Anderson-Krathwohl: Analizzare).
+     * Ciascuno dei 12 elementi ha una grafica vettoriale SVG ridisegnata nativamente
+     * con viewBox uniforme "0 0 140 140", proporzioni centrate e descrizioni semantiche.
+     */
+    const FOOD_ITEMS = [
+      {
+        id: 1,
+        name: "Puls (farinata di farro o cereali)",
+        category: "Plebei",
+        explanation: "È il piatto base quotidiano della maggior parte della popolazione romana: nutriente, economico e semplice da cucinare.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg1-title svg1-desc">
+          <title id="svg1-title">Ciotola rustica di terracotta con farinata calda e un cucchiaio di legno</title>
+          <desc id="svg1-desc">Una ciotola bombata di terracotta arancione-marrone piena di calda farinata densa, con un cucchiaio di legno e volute di vapore.</desc>
+          <!-- Ombra di base -->
+          <ellipse cx="70" cy="120" rx="46" ry="9" fill="#E2E8F0"/>
+          <!-- Corpo della ciotola in terracotta grezza -->
+          <path d="M 26 62 Q 70 126 114 62 Z" fill="#C2410C" stroke="#7C2D12" stroke-width="3"/>
+          <!-- Bordo superiore della ciotola -->
+          <ellipse cx="70" cy="62" rx="44" ry="14" fill="#9A3412" stroke="#7C2D12" stroke-width="2.5"/>
+          <!-- Superficie della farinata di farro (puls) -->
+          <ellipse cx="70" cy="62" rx="39" ry="11" fill="#D97706"/>
+          <ellipse cx="70" cy="61" rx="30" ry="7" fill="#FBBF24" opacity="0.8"/>
+          <!-- Chicchi di farro visibili in superficie -->
+          <ellipse cx="58" cy="60" rx="2.5" ry="1.5" fill="#78350F"/>
+          <ellipse cx="82" cy="59" rx="2.5" ry="1.5" fill="#78350F"/>
+          <ellipse cx="72" cy="64" rx="2.5" ry="1.5" fill="#78350F"/>
+          <!-- Volute di vapore caldo -->
+          <path d="M 54 46 Q 60 32 54 20" stroke="#94A3B8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M 70 47 Q 76 33 70 21" stroke="#94A3B8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M 86 45 Q 92 31 86 19" stroke="#94A3B8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Cucchiaio di legno obliquo posato nella ciotola -->
+          <path d="M 44 58 L 22 30" stroke="#78350F" stroke-width="5" stroke-linecap="round"/>
+          <ellipse cx="46" cy="60" rx="8" ry="6" fill="#78350F" transform="rotate(-30 46 60)"/>
+        </svg>`
+      },
+      {
+        id: 2,
+        name: "Carne di ghiro o fenicottero",
+        category: "Patrizi",
+        explanation: "Cibi rari, costosissimi ed esotici, serviti durante i lunghi banchetti serali per mostrare ricchezza e prestigio agli ospiti.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg2-title svg2-desc">
+          <title id="svg2-title">Vassoio metallico decorato con una pietanza esotica da banchetto</title>
+          <desc id="svg2-desc">Un elegante vassoio d'argento cesellato con una pietanza arrosto prelibata guarnita con spezie dorate e foglie d'alloro.</desc>
+          <!-- Ombra del vassoio -->
+          <ellipse cx="70" cy="118" rx="54" ry="10" fill="#E2E8F0"/>
+          <!-- Vassoio ovale d'argento patrizio (lanx) -->
+          <ellipse cx="70" cy="85" rx="58" ry="24" fill="#E2E8F0" stroke="#64748B" stroke-width="3"/>
+          <ellipse cx="70" cy="84" rx="50" ry="18" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+          <!-- Manici cesellati -->
+          <path d="M 12 85 Q 5 78 12 71" stroke="#64748B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M 128 85 Q 135 78 128 71" stroke="#64748B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <!-- Pietanza arrosto glassata al centro -->
+          <path d="M 45 82 Q 70 60 95 82 Q 70 96 45 82 Z" fill="#92400E" stroke="#542608" stroke-width="2"/>
+          <ellipse cx="70" cy="79" rx="18" ry="7" fill="#B45309" opacity="0.8"/>
+          <!-- Spezie dorate e pepe romano -->
+          <circle cx="58" cy="78" r="2" fill="#FDE047"/>
+          <circle cx="70" cy="81" r="2" fill="#FDE047"/>
+          <circle cx="82" cy="78" r="2" fill="#FDE047"/>
+          <circle cx="64" cy="84" r="1.5" fill="#18181B"/>
+          <circle cx="76" cy="83" r="1.5" fill="#18181B"/>
+          <!-- Foglie d'alloro decorative -->
+          <path d="M 33 87 Q 41 80 36 75 Q 31 82 33 87" fill="#15803D" stroke="#166534" stroke-width="1.2"/>
+          <path d="M 107 87 Q 99 80 104 75 Q 109 82 107 87" fill="#15803D" stroke="#166534" stroke-width="1.2"/>
+        </svg>`
+      },
+      {
+        id: 3,
+        name: "Pane nero di segale o crusca",
+        category: "Plebei",
+        explanation: "Farine poco raffinate e poco costose, consumate dai lavoratori comuni per sfamarsi spendendo poco.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg3-title svg3-desc">
+          <title id="svg3-title">Pagnotta scura, rustica e compatta, incisa a spicchi (panis plebeius)</title>
+          <desc id="svg3-desc">Una pagnotta scura rotonda tipica degli scavi di Pompei, tagliata a otto spicchi con timbro centrale del panettiere.</desc>
+          <!-- Ombra sul piano -->
+          <ellipse cx="70" cy="116" rx="48" ry="11" fill="#E2E8F0"/>
+          <!-- Corpo della pagnotta rustica (panis quadratus) -->
+          <ellipse cx="70" cy="74" rx="50" ry="36" fill="#713F12" stroke="#381E08" stroke-width="3"/>
+          <ellipse cx="70" cy="70" rx="44" ry="29" fill="#854D0E" stroke="#451A03" stroke-width="1.5"/>
+          <!-- Incisioni da fornaio a 8 spicchi -->
+          <line x1="70" y1="41" x2="70" y2="99" stroke="#381E08" stroke-width="3" stroke-linecap="round"/>
+          <line x1="26" y1="70" x2="114" y2="70" stroke="#381E08" stroke-width="3" stroke-linecap="round"/>
+          <line x1="39" y1="49" x2="101" y2="91" stroke="#381E08" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="39" y1="91" x2="101" y2="49" stroke="#381E08" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Timbro rotondo centrale del fornaio romano -->
+          <circle cx="70" cy="70" r="7" fill="#542C0A" stroke="#381E08" stroke-width="1.5"/>
+          <!-- Punti di farina grezza -->
+          <circle cx="56" cy="60" r="1.5" fill="#D6D3D1" opacity="0.6"/>
+          <circle cx="84" cy="80" r="1.5" fill="#D6D3D1" opacity="0.6"/>
+        </svg>`
+      },
+      {
+        id: 4,
+        name: "Pane bianco di frumento fine",
+        category: "Patrizi",
+        explanation: "Il frumento fine e ben setacciato era costoso e destinato alle tavole dei ricchi; spesso accompagnava intingoli raffinati.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg4-title svg4-desc">
+          <title id="svg4-title">Pagnotta chiara e soffice di farina setacciata (panis siligineus)</title>
+          <desc id="svg4-desc">Una pagnotta dorata e soffice, preparata con farina candida di frumento setacciato, posata su un candido tovagliolo di lino.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="116" rx="48" ry="10" fill="#E2E8F0"/>
+          <!-- Tovagliolo di lino chiaro -->
+          <polygon points="22,98 118,84 125,116 15,116" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+          <!-- Pagnotta dorata soffice -->
+          <path d="M 28 86 Q 70 30 112 86 Q 70 110 28 86 Z" fill="#FDE68A" stroke="#B45309" stroke-width="3"/>
+          <!-- Calotta dorata e morbida -->
+          <path d="M 38 80 Q 70 42 102 80 Q 70 94 38 80 Z" fill="#FEF3C7"/>
+          <!-- Tagli decorativi leggeri del panettiere -->
+          <path d="M 52 65 Q 58 74 52 82" stroke="#B45309" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M 70 59 Q 76 71 70 84" stroke="#B45309" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M 88 65 Q 94 74 88 82" stroke="#B45309" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Spiga di grano dorata decorativa -->
+          <path d="M 112 106 L 128 78" stroke="#D97706" stroke-width="1.8" stroke-linecap="round"/>
+          <ellipse cx="125" cy="82" rx="3" ry="5" fill="#F59E0B" transform="rotate(30 125 82)"/>
+        </svg>`
+      },
+      {
+        id: 5,
+        name: "Cibi cotti comprati alla taberna o popina",
+        category: "Plebei",
+        explanation: "Nelle insulae (le case dei plebei) non c'erano cucine né camini per paura degli incendi; i plebei compravano cibo caldo per strada.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg5-title svg5-desc">
+          <title id="svg5-title">Bancone in muratura di un thermopolium con grandi giare incassate</title>
+          <desc id="svg5-desc">Il bancone in pietra di un'osteria di strada dell'antica Roma con due grandi giare incassate per servire zuppe e pietanze calde.</desc>
+          <!-- Ombra di base -->
+          <ellipse cx="70" cy="122" rx="52" ry="9" fill="#E2E8F0"/>
+          <!-- Bancone solido in muratura (thermopolium) -->
+          <rect x="20" y="58" width="100" height="60" rx="4" fill="#E2E8F0" stroke="#475569" stroke-width="3"/>
+          <!-- Decorazione a lastre policrome in opus sectile -->
+          <line x1="20" y1="88" x2="120" y2="88" stroke="#94A3B8" stroke-width="2"/>
+          <line x1="52" y1="58" x2="52" y2="88" stroke="#94A3B8" stroke-width="2"/>
+          <line x1="88" y1="58" x2="88" y2="88" stroke="#94A3B8" stroke-width="2"/>
+          <line x1="70" y1="88" x2="70" y2="118" stroke="#94A3B8" stroke-width="2"/>
+          <!-- Piano superiore del bancone in marmo/pietra -->
+          <path d="M 15 58 L 125 58 L 118 46 L 22 46 Z" fill="#CBD5E1" stroke="#475569" stroke-width="2"/>
+          <!-- Grandi giare di terracotta (dolia) incassate nel banco -->
+          <ellipse cx="46" cy="52" rx="18" ry="7" fill="#C2410C" stroke="#7C2D12" stroke-width="2"/>
+          <ellipse cx="46" cy="52" rx="14" ry="4.5" fill="#7C2D12"/>
+          <ellipse cx="94" cy="52" rx="18" ry="7" fill="#C2410C" stroke="#7C2D12" stroke-width="2"/>
+          <ellipse cx="94" cy="52" rx="14" ry="4.5" fill="#D97706"/>
+          <!-- Vapore delle zuppe calde vendute ai passanti -->
+          <path d="M 44 42 Q 48 30 44 20" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M 92 42 Q 96 30 92 20" stroke="#94A3B8" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        id: 6,
+        name: "Garum di prima qualità (salsa di pesce pregiata)",
+        category: "Patrizi",
+        explanation: "Le salse di pesce più raffinate e aromatiche costavano cifre enormi e venivano usate dai cuochi patrizi per insaporire ogni portata.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg6-title svg6-desc">
+          <title id="svg6-title">Anforetta slanciata ed elegante sigillata, contenente la preziosa salsa liquida</title>
+          <desc id="svg6-desc">Un'anfora affusolata in ceramica dorata con manici sagomati, sigillata con ceralacca rossa per proteggere il garum prezioso.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="124" rx="30" ry="7" fill="#E2E8F0"/>
+          <!-- Corpo affusolato dell'anfora Dressel -->
+          <path d="M 60 42 Q 48 70 50 96 Q 52 120 70 124 Q 88 120 90 96 Q 92 70 80 42 Z" fill="#D97706" stroke="#78350F" stroke-width="2.5"/>
+          <!-- Collo slanciato dell'anfora -->
+          <rect x="62" y="24" width="16" height="18" fill="#B45309" stroke="#78350F" stroke-width="2"/>
+          <!-- Sigillo superiore in ceralacca rossa -->
+          <ellipse cx="70" cy="23" rx="11" ry="4" fill="#DC2626" stroke="#991B1B" stroke-width="1.8"/>
+          <!-- Manici / anse sagomate -->
+          <path d="M 62 33 Q 44 42 53 66" stroke="#78350F" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M 78 33 Q 96 42 87 66" stroke="#78350F" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Marchio impresso del pesce (titulus pictus) -->
+          <path d="M 63 85 Q 70 80 77 85 Q 70 90 63 85 Z" fill="#78350F"/>
+          <path d="M 77 85 L 83 80 L 83 90 Z" fill="#78350F"/>
+        </svg>`
+      },
+      {
+        id: 7,
+        name: "Legumi secchi (fave, ceci, lenticchie)",
+        category: "Plebei",
+        explanation: "Erano la principale fonte di proteine a basso costo, facili da conservare e consumati in zuppe calde.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg7-title svg7-desc">
+          <title id="svg7-title">Sacchetto di tela grezza con legumi secchi e baccelli di fave</title>
+          <desc id="svg7-desc">Un sacchetto di tela rustica colmo di ceci e fave secche, con baccelli verdi freschi aperti sul davanti.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="120" rx="46" ry="10" fill="#E2E8F0"/>
+          <!-- Sacco di tela di canapa o iuta aperto -->
+          <path d="M 35 60 Q 28 112 70 116 Q 112 112 105 60 Q 90 68 70 68 Q 50 68 35 60 Z" fill="#D6D3D1" stroke="#57534E" stroke-width="3"/>
+          <ellipse cx="70" cy="62" rx="34" ry="10" fill="#A8A29E" stroke="#57534E" stroke-width="1.5"/>
+          <!-- Legumi secchi (ceci e fave rotondeggianti) -->
+          <circle cx="56" cy="62" r="4.5" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+          <circle cx="70" cy="60" r="5" fill="#FDE68A" stroke="#D97706" stroke-width="1.5"/>
+          <circle cx="84" cy="62" r="4.5" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+          <circle cx="63" cy="67" r="4" fill="#D97706"/>
+          <circle cx="77" cy="67" r="4.5" fill="#FBBF24"/>
+          <!-- Baccello di fava verde posato a terra -->
+          <path d="M 32 112 Q 60 98 88 108 Q 60 118 32 112 Z" fill="#4ADE80" stroke="#15803D" stroke-width="2"/>
+          <circle cx="48" cy="108" r="3" fill="#166534"/>
+          <circle cx="68" cy="108" r="3" fill="#166534"/>
+        </svg>`
+      },
+      {
+        id: 8,
+        name: "Vino mielato e speziato (mulsum)",
+        category: "Patrizi",
+        explanation: "Vino dolce aromatizzato con miele, pepe e spezie d'Oriente, servito all'inizio dei banchetti (gustatio) come bevanda di lusso.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg8-title svg8-desc">
+          <title id="svg8-title">Una coppa decorata (calix) con vino ambrato e un vasetto di miele</title>
+          <desc id="svg8-desc">Una coppa cerimoniale d'oro a due manici colma di vino speziato affiancata da un vasetto in ceramica con miele dorato.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="120" rx="46" ry="9" fill="#E2E8F0"/>
+          <!-- Calice cesellato in metallo prezioso (calix) -->
+          <path d="M 38 42 Q 66 90 94 42 Z" fill="#FACC15" stroke="#78350F" stroke-width="2.5"/>
+          <ellipse cx="66" cy="42" rx="27" ry="8" fill="#EAB308" stroke="#78350F" stroke-width="1.5"/>
+          <!-- Vino speziato ambrato-rosso scuro -->
+          <ellipse cx="66" cy="43" rx="22" ry="5.5" fill="#991B1B"/>
+          <!-- Fusto e base lavorata del calice -->
+          <rect x="63" y="74" width="6" height="32" fill="#CA8A04" stroke="#78350F" stroke-width="1.5"/>
+          <ellipse cx="66" cy="106" rx="18" ry="6" fill="#FACC15" stroke="#78350F" stroke-width="2"/>
+          <!-- Manici sottili del calice -->
+          <path d="M 38 46 Q 30 54 38 64" stroke="#78350F" stroke-width="2" fill="none"/>
+          <path d="M 94 46 Q 102 54 94 64" stroke="#78350F" stroke-width="2" fill="none"/>
+          <!-- Vasetto di miele dorato (mel) -->
+          <path d="M 98 80 Q 94 106 108 108 Q 122 106 118 80 Z" fill="#EA580C" stroke="#9A3412" stroke-width="2"/>
+          <ellipse cx="108" cy="80" rx="10" ry="3.5" fill="#FDE047" stroke="#9A3412" stroke-width="1.2"/>
+          <circle cx="108" cy="88" r="3" fill="#FACC15"/>
+        </svg>`
+      },
+      {
+        id: 9,
+        name: "Posca (bevanda di acqua e aceto)",
+        category: "Plebei",
+        explanation: "Bevanda dissetante ed economica usata dal popolo e dai legionari: costava pochissimo e l'aceto disinfettava l'acqua.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg9-title svg9-desc">
+          <title id="svg9-title">Una semplice brocca di terracotta comune con bicchiere grezzo</title>
+          <desc id="svg9-desc">Una brocca rustica di terracotta con beccuccio e manico, accanto a un bicchiere cilindrico da taverna con posca chiara.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="120" rx="46" ry="9" fill="#E2E8F0"/>
+          <!-- Brocca comune da vino/posca (urceus) -->
+          <path d="M 45 45 Q 24 80 38 110 Q 74 115 74 80 Q 70 56 60 45 Z" fill="#C2410C" stroke="#7C2D12" stroke-width="2.5"/>
+          <ellipse cx="52" cy="45" rx="11" ry="4" fill="#EA580C" stroke="#7C2D12" stroke-width="1.5"/>
+          <!-- Manico in terracotta grezza -->
+          <path d="M 36 54 Q 18 68 30 94" stroke="#7C2D12" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <!-- Bicchiere cilindrico da osteria (poculum) -->
+          <path d="M 84 72 L 87 110 L 107 110 L 110 72 Z" fill="#9A3412" stroke="#7C2D12" stroke-width="2"/>
+          <ellipse cx="97" cy="72" rx="13" ry="4" fill="#EA580C"/>
+          <ellipse cx="97" cy="78" rx="10" ry="3" fill="#FED7AA"/>
+        </svg>`
+      },
+      {
+        id: 10,
+        name: "Ostriche fresche e pesci di vivaio",
+        category: "Patrizi",
+        explanation: "Il pesce fresco trasportato rapidamente o allevato in vasche private era un simbolo di altissimo livello sociale.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg10-title svg10-desc">
+          <title id="svg10-title">Un piatto da portata con ostriche aperte e pesci freschi</title>
+          <desc id="svg10-desc">Un elegante piatto da servizio patrizio con un pesce pregiato fresco e due conchiglie di ostrica aperte con polpa perlacea.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="118" rx="52" ry="10" fill="#E2E8F0"/>
+          <!-- Piatto metallico da banchetto patrizio -->
+          <ellipse cx="70" cy="85" rx="56" ry="24" fill="#F8FAFC" stroke="#64748B" stroke-width="2.5"/>
+          <!-- Pesce pregiato fresco con squame azzurrine -->
+          <path d="M 38 79 Q 70 62 102 80 Q 70 98 38 79 Z" fill="#38BDF8" stroke="#0284C7" stroke-width="2"/>
+          <path d="M 36 79 L 22 70 L 22 88 Z" fill="#0284C7"/>
+          <circle cx="90" cy="77" r="2.5" fill="#0F172A"/>
+          <line x1="88" y1="83" x2="94" y2="83" stroke="#0284C7" stroke-width="1.5"/>
+          <!-- Due ostriche aperte con perlaceo interno -->
+          <ellipse cx="50" cy="92" rx="14" ry="8" fill="#E2E8F0" stroke="#475569" stroke-width="1.8"/>
+          <ellipse cx="50" cy="92" rx="8" ry="4.5" fill="#FEF08A"/>
+          <ellipse cx="90" cy="92" rx="14" ry="8" fill="#E2E8F0" stroke="#475569" stroke-width="1.8"/>
+          <ellipse cx="90" cy="92" rx="8" ry="4.5" fill="#FEF08A"/>
+        </svg>`
+      },
+      {
+        id: 11,
+        name: "Fichi secchi e olive salate",
+        category: "Plebei",
+        explanation: "Alimenti a lunga conservazione, facili da trasportare al lavoro, consumati a pranzo (prandium) con un tozzo di pane.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg11-title svg11-desc">
+          <title id="svg11-title">Un canovaccio con alcuni fichi essiccati e olive scure</title>
+          <desc id="svg11-desc">Un canovaccio di tela steso con fichi scuri rugosi ed essiccati accanto a lucide olive nere salate.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="118" rx="46" ry="10" fill="#E2E8F0"/>
+          <!-- Canovaccio da lavoro spiegato -->
+          <polygon points="25,88 115,74 122,110 18,114" fill="#F5F5F4" stroke="#A8A29E" stroke-width="2"/>
+          <!-- Fichi secchi rugosi dal picciolo verde -->
+          <path d="M 45 93 Q 40 79 52 77 Q 63 83 58 95 Z" fill="#701A75" stroke="#4A044E" stroke-width="1.8"/>
+          <path d="M 52 77 L 50 71" stroke="#15803D" stroke-width="2" stroke-linecap="round"/>
+          <path d="M 68 91 Q 64 77 75 75 Q 86 81 82 93 Z" fill="#581C87" stroke="#3B0764" stroke-width="1.8"/>
+          <path d="M 75 75 L 73 69" stroke="#15803D" stroke-width="2" stroke-linecap="round"/>
+          <!-- Olive nere salate -->
+          <ellipse cx="96" cy="96" rx="6.5" ry="4.5" fill="#18181B" stroke="#09090B" stroke-width="1.5"/>
+          <ellipse cx="88" cy="100" rx="6" ry="4.2" fill="#27272A" stroke="#09090B" stroke-width="1.5"/>
+          <ellipse cx="40" cy="99" rx="6.5" ry="4.5" fill="#18181B" stroke="#09090B" stroke-width="1.5"/>
+        </svg>`
+      },
+      {
+        id: 12,
+        name: "Cena consumata distesi sui letti (triclinio)",
+        category: "Patrizi",
+        explanation: "Solo i patrizi avevano una sala da pranzo dedicata (triclinium) dove mangiare sdraiati, serviti per ore dagli schiavi.",
+        svg: `<svg viewBox="0 0 140 140" width="100%" height="100%" role="img" aria-labelledby="svg12-title svg12-desc">
+          <title id="svg12-title">Il tipico letto da triclinio imbottito accanto a un tavolino basso imbandito</title>
+          <desc id="svg12-desc">Un elegante letto triclinare in legno intarsiato con morbidi cuscini rossi, affiancato da un tavolino tripode basso con coppa.</desc>
+          <!-- Ombra -->
+          <ellipse cx="70" cy="120" rx="52" ry="9" fill="#E2E8F0"/>
+          <!-- Letto tricliniaris (lectus) con cuscini damascati -->
+          <rect x="18" y="70" width="74" height="17" rx="3" fill="#991B1B" stroke="#7F1D1D" stroke-width="2"/>
+          <!-- Cuscino morbido per il gomito (torus) -->
+          <path d="M 20 70 Q 30 50 41 70 Z" fill="#DC2626" stroke="#991B1B" stroke-width="1.8"/>
+          <!-- Gambe tornite del letto -->
+          <rect x="24" y="87" width="6" height="25" rx="1.5" fill="#78350F"/>
+          <rect x="80" y="87" width="6" height="25" rx="1.5" fill="#78350F"/>
+          <line x1="21" y1="102" x2="86" y2="102" stroke="#78350F" stroke-width="3"/>
+          <!-- Tavolino tripode basso (mensa tripus) -->
+          <ellipse cx="106" cy="81" rx="18" ry="6.5" fill="#F59E0B" stroke="#B45309" stroke-width="2"/>
+          <rect x="104" y="87" width="4" height="24" fill="#B45309"/>
+          <ellipse cx="106" cy="111" rx="9" ry="3" fill="#B45309"/>
+          <!-- Piccola coppa di vino sul tavolino -->
+          <path d="M 103 75 L 109 75 L 107 80 L 105 80 Z" fill="#DC2626"/>
+        </svg>`
+      }
+    ];
+
+    let currentIndex = 0;
+
+    // Riferimenti agli elementi DOM
+    const screenCover = document.getElementById('screen-cover');
+    const screenActivity = document.getElementById('screen-activity');
+    const screenSummary = document.getElementById('screen-summary');
+
+    const btnStart = document.getElementById('btn-start');
+    const btnGlobalRestart = document.getElementById('btn-global-restart');
+    const btnRestartFinal = document.getElementById('btn-restart-final');
+    const btnReviewAgain = document.getElementById('btn-review-again');
+
+    const currentIndexDisplay = document.getElementById('current-index-display');
+    const progressFill = document.getElementById('progress-fill');
+    const progressBar = document.getElementById('progress-bar');
+    const ariaAnnouncer = document.getElementById('aria-announcer');
+
+    const foodSvgContainer = document.getElementById('food-svg-container');
+    const foodName = document.getElementById('food-name');
+    const btnChoosePatrizio = document.getElementById('btn-choose-patrizio');
+    const btnChoosePlebeo = document.getElementById('btn-choose-plebeo');
+
+    const feedbackPanel = document.getElementById('feedback-panel');
+    const feedbackTitle = document.getElementById('feedback-title');
+    const feedbackExplanation = document.getElementById('feedback-explanation');
+    const btnNextItem = document.getElementById('btn-next-item');
+
+    const summaryPatriziList = document.getElementById('summary-patrizi-list');
+    const summaryPlebeiList = document.getElementById('summary-plebei-list');
+
+    function announceToScreenReader(message) {
+      if (ariaAnnouncer) {
+        ariaAnnouncer.textContent = message;
+      }
+    }
+
+    function switchScreen(screenToShow) {
+      [screenCover, screenActivity, screenSummary].forEach(screen => {
+        screen.classList.remove('active');
+      });
+      screenToShow.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function loadCurrentItem() {
+      const item = FOOD_ITEMS[currentIndex];
+      currentIndexDisplay.textContent = currentIndex + 1;
+
+      const percent = Math.round(((currentIndex + 1) / FOOD_ITEMS.length) * 100);
+      progressFill.style.width = percent + '%';
+      progressBar.setAttribute('aria-valuenow', currentIndex + 1);
+
+      foodSvgContainer.innerHTML = item.svg;
+      foodName.textContent = item.name;
+
+      // Ripristina l'interfaccia per il nuovo alimento
+      feedbackPanel.classList.remove('visible', 'success', 'retry');
+      btnNextItem.style.display = 'none';
+      btnChoosePatrizio.disabled = false;
+      btnChoosePlebeo.disabled = false;
+      btnChoosePatrizio.style.opacity = '1';
+      btnChoosePlebeo.style.opacity = '1';
+
+      announceToScreenReader(`Elemento ${currentIndex + 1} di 12: ${item.name}. Scegli se assegnarlo ai Patrizi o ai Plebei.`);
+      btnChoosePatrizio.focus();
+    }
+
+    function handleChoice(selectedCategory) {
+      const item = FOOD_ITEMS[currentIndex];
+      const isCorrect = (selectedCategory === item.category);
+
+      feedbackPanel.classList.remove('success', 'retry');
+
+      if (isCorrect) {
+        // Scelta esatta: fornisce la spiegazione storica della causa socio-economica
+        feedbackPanel.classList.add('visible', 'success');
+        feedbackTitle.innerHTML = `<span>✅</span> <strong>Esatto! Appartiene ai ${item.category}</strong>`;
+        feedbackExplanation.innerHTML = `<strong>Perché:</strong> ${item.explanation}`;
+
+        btnChoosePatrizio.disabled = true;
+        btnChoosePlebeo.disabled = true;
+        btnChoosePatrizio.style.opacity = '0.7';
+        btnChoosePlebeo.style.opacity = '0.7';
+
+        btnNextItem.style.display = 'inline-flex';
+        btnNextItem.focus();
+
+        announceToScreenReader(`Risposta corretta! Appartiene ai ${item.category}. Spiegazione: ${item.explanation}. Premi il pulsante per passare al prossimo alimento.`);
+      } else {
+        // Errore: feedback formativo che invita a riflettere senza penalità o blocchi
+        feedbackPanel.classList.add('visible', 'retry');
+        feedbackTitle.innerHTML = `<span>💡</span> <strong>Riflettiamo insieme!</strong>`;
+        feedbackExplanation.innerHTML = `Non apparteneva ai <strong>${selectedCategory}</strong>.<br>
+          <em>Indizio per ragionare:</em> pensa al costo economico, alle abitazioni dei romani (insulae senza cucine per il pericolo incendi) o alla rarità di questo ingrediente. Riprova con fiducia!`;
+
+        announceToScreenReader(`Non apparteneva ai ${selectedCategory}. Riflettete sul costo e sulle case dell'antica Roma e riprovate.`);
+      }
+    }
+
+    function showSummary() {
+      summaryPatriziList.innerHTML = '';
+      summaryPlebeiList.innerHTML = '';
+
+      FOOD_ITEMS.forEach(item => {
+        const itemCard = document.createElement('div');
+        itemCard.className = 'summary-item';
+        itemCard.setAttribute('role', 'listitem');
+
+        itemCard.innerHTML = `
+          <div class="summary-item-icon" aria-hidden="true">
+            ${item.svg}
+          </div>
+          <div class="summary-item-text">
+            <strong>${item.name}</strong><br>
+            <span style="color: #4B5563; font-size: 18px;">${item.explanation}</span>
+          </div>
+        `;
+
+        if (item.category === 'Patrizi') {
+          summaryPatriziList.appendChild(itemCard);
+        } else {
+          summaryPlebeiList.appendChild(itemCard);
+        }
+      });
+
+      switchScreen(screenSummary);
+      announceToScreenReader("Hai completato l'attività! È visualizzato il riepilogo generale con il confronto completo tra Patrizi e Plebei.");
+    }
+
+    function resetActivity() {
+      currentIndex = 0;
+      switchScreen(screenCover);
+      btnStart.focus();
+      announceToScreenReader("Attività azzerata. Sei tornato alla copertina iniziale.");
+    }
+
+    // Gestione degli eventi di navigazione e scelta
+    btnStart.addEventListener('click', () => {
+      currentIndex = 0;
+      switchScreen(screenActivity);
+      loadCurrentItem();
+    });
+
+    btnChoosePatrizio.addEventListener('click', () => {
+      handleChoice('Patrizi');
+    });
+
+    btnChoosePlebeo.addEventListener('click', () => {
+      handleChoice('Plebei');
+    });
+
+    btnNextItem.addEventListener('click', () => {
+      if (currentIndex < FOOD_ITEMS.length - 1) {
+        currentIndex++;
+        loadCurrentItem();
+      } else {
+        showSummary();
+      }
+    });
+
+    btnGlobalRestart.addEventListener('click', resetActivity);
+    btnRestartFinal.addEventListener('click', resetActivity);
+
+    btnReviewAgain.addEventListener('click', () => {
+      currentIndex = 0;
+      switchScreen(screenActivity);
+      loadCurrentItem();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      progressFill.style.width = '0%';
+    });
+  </script>
+</body>
+</html>
